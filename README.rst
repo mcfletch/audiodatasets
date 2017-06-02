@@ -20,12 +20,11 @@ Audio Datasets
 
 Pulls and pre-processes major Open Source datasets for spoken audio
 
-* Documentation: https://audiodatasets.readthedocs.io.
 * Supported Datasets:
 
-  * Librispeech (60GB)
-  * TEDLIUM_release2 (35GB)
-  * VCTK-Corpus (11GB)
+  * `Librispeech <http://www.openslr.org/resources/12/>`_ (60GB)
+  * `TEDLIUM_release2 <http://www.openslr.org/resources/19/>`_ (35GB)
+  * `VCTK-Corpus <http://homepages.inf.ed.ac.uk/jyamagis/release/>`_ (11GB)
 
 * This is intended for use on Linux servers and it is expected that you will be using the 
   library to feed a machine learning system (not necessary, but that's sort of the point of 
@@ -38,7 +37,7 @@ Features
 
 * Downloads common Open Source datasets and performs basic preprocessing on them
 * Provides iterables that produce Numpy arrays from the audio data in common formats
-* Using `sphfile` directly accesses sph files instead of needing to convert to `wav` first
+* Uses `sphfile` to directly accesses sph files instead of needing to convert to `wav` first
 * Uses a single shared location for the datasets intended to be used by multiple projects
 
 Installation/Setup
@@ -52,15 +51,24 @@ of a user-specific ownership::
     $ chown user:group /var/datasets
     $ chmod g+rw /var/datasets
 
-Note that the downloader expects that you have the following available:
+if `/var/datasets` doesn't exist, or isn't writable, the downloader will instead populate
+`~/.config/datasets` with the data. You may wish to link that directory to `/var/datasets`
+so that you can use default instantiations of the corpora::
 
-    * tar
-    * wget
+    $ ln -s /var/datasets ~/.config/datasets
+
+Note that the downloader expects that you have the following available, this may not
+yet be the case in a docker or minimal OS installation:
+
+    * `tar`
+    * `wget`
 
 Now you can download the datasets.
 
-.. note:: The datasets are big (100+GB)!
+.. note::
 
+    The datasets are big (100+GB)!
+    
     If you are paying for data or are working on a slow connection you will
     likely want to arrange to do this step during a low-rated period or on a 
     separate data connection.
