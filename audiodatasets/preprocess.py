@@ -21,7 +21,7 @@ def _run_pipes_to_finish(pipes):
             if pipe.poll() is None
         ]
         log.info("%s downloads running", len(pipes))
-        time.sleep(20)
+        time.sleep(5)
 
 
 def download_files(to_download):
@@ -32,7 +32,10 @@ def download_files(to_download):
             os.makedirs(dirname)
         log.info("Downloading %s => %s", struct['url'], struct['filename'])
         command = [
-            'wget', '-o', struct['filename'], struct['url']
+            'wget', 
+                '-O', struct['filename'],
+                '-o', struct['filename']+'.download.log',
+                struct['url']
         ]
         if struct.get('start'):
             command.insert(1, '--continue')
@@ -98,7 +101,7 @@ def download(dry_run=False):
         help="If specified, just print out what would be downloaded and exit"
     )
     options = parser.parse_args()
-    log.info("Download starting for %s", options.corpus)
+    log.info("Download starting")
     _download(
         options.directory,
         build_corpora(options.directory, options.corpus),
@@ -145,9 +148,5 @@ def preprocess():
     utterances = []
     for corpus in corpora:
         utterances += list(corpus.mfcc_utterances())
-    for speaker, content, audio, mfcc in utterances:
-        print("%s\t%s\t%s" % (
-            speaker, audio, content
-        ))
     log.info("MFCC extraction complete")
     return 0
