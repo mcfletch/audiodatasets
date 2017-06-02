@@ -11,11 +11,8 @@ import time
 import subprocess
 import logging
 import tempfile
-from .corpora import build_corpora
+from .corpora import build_corpora, GLOBAL_DATSET_DIR, PERSONAL_DATASET_DIR
 log = logging.getLogger(__name__)
-GLOBAL_DATSET_DIR = '/var/datsets'
-PERSONAL_DATASET_DIR = '~/.config/datasets'
-
 
 def _run_pipes_to_finish(pipes):
     while pipes:
