@@ -27,7 +27,7 @@ def build_corpora(target=PERSONAL_DATASET_DIR, corpora=None):
                    for c in corpora]
     return [cls(target) for cls in corpora]
 
-def partition( data, fragments ):
+def partition(data, fragments):
     """Partion list into relative fractions"""
     total = sum(fragments)
     relative = len(data) // total
