@@ -1,4 +1,6 @@
 """Get a set of corpora for a given directory"""
+
+
 def build_corpora(target, corpora=None):
     """Build corpora for given target
 
@@ -11,12 +13,13 @@ def build_corpora(target, corpora=None):
     from . import vctk
     from . import librispeech
     all_corpora = {
-        'tedlium':tedlium.CORPUS,
-        'vctk':vctk.CORPUS,
-        'librispeech':librispeech.CORPUS,
+        'tedlium': tedlium.CORPUS,
+        'vctk': vctk.CORPUS,
+        'librispeech': librispeech.CORPUS,
     }
     if not corpora:
         corpora = all_corpora.values()
     else:
-        corpora = [(all_corpora[c] if c in all_corpora else c) for c in corpora]
+        corpora = [(all_corpora[c] if c in all_corpora else c)
+                   for c in corpora]
     return [cls(target) for cls in corpora]

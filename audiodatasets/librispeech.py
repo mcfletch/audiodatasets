@@ -6,12 +6,14 @@ The 3 Data-sets here required around 100GB of downloads, so
 the idea of this module is that you'll download the dataset 
 once and then use it for many experiments.
 """
-import os, glob
+import os
+import glob
 import logging
 log = logging.getLogger(__name__)
 from . import basecorpus
-    
-class LibriSpeech( basecorpus.AudioCorpus ):
+
+
+class LibriSpeech(basecorpus.AudioCorpus):
     DOWNLOAD_SIZES = {
         'dev-clean.tar.gz': 337926286,
         'dev-other.tar.gz': 314305928,
@@ -45,9 +47,10 @@ class LibriSpeech( basecorpus.AudioCorpus ):
         'train-other-500',
     ]
     LOCAL_DIR = 'LibriSpeech'
-    def iter_utterances( self, categories=None ):
+
+    def iter_utterances(self, categories=None):
         """Produce iterable with speaker_id, utterance_text, audio_filename
-        
+
         LibriSpeech files are already in our preferred format
         """
         if categories is None:
@@ -55,15 +58,17 @@ class LibriSpeech( basecorpus.AudioCorpus ):
         else:
             categories = categories
         for category in categories:
-            for translation in glob.glob( os.path.join( self.local_dir, category, '*/*/*.txt' )):
-                directory = os.path.dirname( translation )
+            for translation in glob.glob(os.path.join(self.local_dir, category, '*/*/*.txt')):
+                directory = os.path.dirname(translation)
                 for line in open(translation).read().splitlines():
                     try:
-                        id, content = line.split(' ',1)
+                        id, content = line.split(' ', 1)
                     except ValueError:
-                        log.error("Unexpected translation line format: %r", line)
-                    speaker,chapter,utterance = id.split('-')
-                    flac_file = os.path.join( directory, '%s.flac'%(id,))
-                    yield 'Libri-%s-%s'%(category,int(speaker)), content, flac_file
+                        log.error(
+                            "Unexpected translation line format: %r", line)
+                    speaker, chapter, utterance = id.split('-')
+                    flac_file = os.path.join(directory, '%s.flac' % (id,))
+                    yield 'Libri-%s-%s' % (category, int(speaker)), content, flac_file
+
 
 CORPUS = LibriSpeech

@@ -11,10 +11,11 @@ import time
 import subprocess
 import logging
 import tempfile
-from . import corpora
+from .corpora import build_corpora
 log = logging.getLogger(__name__)
 GLOBAL_DATSET_DIR = '/var/datsets'
 PERSONAL_DATASET_DIR = '~/.config/datasets'
+
 
 def _run_pipes_to_finish(pipes):
     while pipes:
@@ -52,6 +53,7 @@ def unpack_downloads(to_unpack, target):
             ]))
         _run_pipes_to_finish(pipes)
 
+
 def get_options(description):
     import argparse
     DEFAULT_DATASET_DIR = os.path.expanduser(PERSONAL_DATASET_DIR)
@@ -81,11 +83,12 @@ def get_options(description):
             'vctk',
             'librespeech',
         ],
-        action = 'append',
-        default = [],
-        help = "Specify particular corpora (repeat option to specify multiple), default: all"
+        action='append',
+        default=[],
+        help="Specify particular corpora (repeat option to specify multiple), default: all"
     )
     return parser
+
 
 def download(dry_run=False):
     """Download main operation"""
@@ -93,21 +96,22 @@ def download(dry_run=False):
     parser = get_options('Downloads common spoken-text datasets')
     parser.add_argument(
         '--dry-run',
-        default = False,
+        default=False,
         action='store_true',
         help="If specified, just print out what would be downloaded and exit"
     )
     options = parser.parse_args()
-    log.info("Download starting for %s",corpora)
+    log.info("Download starting for %s", corpora)
     _download(
         options.directory,
-        corpora.build_corpora(options.directory,options.corpus),
+        build_corpora(options.directory, options.corpus),
         dry_run=options.dry_run,
     )
     log.info("Download complete")
     return 0
 
-def _download(target,corpora,dry_run=False):
+
+def _download(target, corpora, dry_run=False):
     """Shared downloading operation"""
     to_download = []
     for corpus in corpora:
@@ -115,10 +119,11 @@ def _download(target,corpora,dry_run=False):
     if dry_run:
         total = 0
         for struct in to_download:
-            log.info("Would download %s => %s", struct['url'], struct['filename'])
-            total += (struct['expected_size']-struct.get('start',0))
-        formatted_size = total//(1024*1024)
-        log.info("Total to download: %sMB",formatted_size)
+            log.info("Would download %s => %s",
+                     struct['url'], struct['filename'])
+            total += (struct['expected_size'] - struct.get('start', 0))
+        formatted_size = total // (1024 * 1024)
+        log.info("Total to download: %sMB", formatted_size)
         return
     if to_download:
         download_files(to_download)
@@ -128,15 +133,17 @@ def _download(target,corpora,dry_run=False):
         if to_unpack:
             unpack_downloads(to_unpack, target)
 
+
 def preprocess():
     """Main-function for the preprocessing operation"""
     logging.basicConfig(level=logging.INFO)
-    parser = get_options('Downloads and preprocesses common spoken-text datasets')
+    parser = get_options(
+        'Downloads and preprocesses common spoken-text datasets')
     options = parser.parse_args()
     target = options.directory
-    corpora = corpora.build_corpora(target,options.corpus)
-    log.info("Download starting for %s",corpora)
-    _download(target,corpora)
+    corpora = build_corpora(target, options.corpus)
+    log.info("Download starting for %s", corpora)
+    _download(target, corpora)
     log.info("MFCC extraction starting")
     utterances = []
     for corpus in corpora:

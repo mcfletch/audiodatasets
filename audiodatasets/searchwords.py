@@ -1,7 +1,8 @@
 from . import preprocess
 import sys
 
-def search( term, corpora=None ):
+
+def search(term, corpora=None):
     """Find all sources that have a given term in them"""
     term = term.upper()
     if corpora is None:
@@ -11,8 +12,8 @@ def search( term, corpora=None ):
             if term in content.upper():
                 yield speaker, content, audio_filename, mfcc
 
-if __name__ == "__main__":
-    for speaker,content,audio_filename,mfcc in search( sys.argv[1] ):
-        print("%s"%( content,))
-        preprocess.AudioCorpus.play_audio_file( audio_filename )
 
+if __name__ == "__main__":
+    for speaker, content, audio_filename, mfcc in search(sys.argv[1]):
+        print("%s" % (content,))
+        preprocess.AudioCorpus.play_audio_file(audio_filename)
