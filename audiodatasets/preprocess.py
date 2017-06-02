@@ -98,7 +98,7 @@ def download(dry_run=False):
         help="If specified, just print out what would be downloaded and exit"
     )
     options = parser.parse_args()
-    log.info("Download starting for %s", corpora)
+    log.info("Download starting for %s", options.corpus)
     _download(
         options.directory,
         build_corpora(options.directory, options.corpus),
