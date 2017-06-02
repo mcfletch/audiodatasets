@@ -22,7 +22,7 @@ class LibriSpeech(basecorpus.AudioCorpus):
         'test-other.tar.gz': 7340032,
         'train-clean-100.tar.gz': 6387309499,
         'train-clean-360.tar.gz': 23049477885,
-        'train-clean-500.tar.gz': 30593501606,
+        'train-other-500.tar.gz': 30593501606,
     }
     DOWNLOAD_URL = 'http://www.openslr.org/resources/12/'
     STORE_IN_SUBDIR = True
@@ -34,7 +34,7 @@ class LibriSpeech(basecorpus.AudioCorpus):
         'intro-disclaimers.tar.gz',
         'train-clean-100.tar.gz',
         'train-clean-360.tar.gz',
-        'train-clean-500.tar.gz',
+        'train-other-500.tar.gz',
     ]
     UNPACKED_FLAGS = [
         'dev-clean',
