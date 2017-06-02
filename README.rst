@@ -18,9 +18,8 @@ Audio Datasets
      :alt: Updates
 
 
-Pulls and pre-processes major Open Source (non-commercial mostly) datasets for spoken audio
+Pulls and pre-processes major Open Source datasets for spoken audio
 
-* Free software: MIT license
 * Documentation: https://audiodatasets.readthedocs.io.
 * Supported Datasets:
 
@@ -31,6 +30,8 @@ Pulls and pre-processes major Open Source (non-commercial mostly) datasets for s
 * This is intended for use on Linux servers and it is expected that you will be using the 
   library to feed a machine learning system (not necessary, but that's sort of the point of 
   collecting these datasets)
+* MIT license for the software, but please note that the datasets themselves are 
+  generally for non-commercial use only
 
 Features
 --------
@@ -66,14 +67,15 @@ Now you can download the datasets.
 
 From a command prompt::
 
-    $ pip install --user audiodatasets
+    $ pip install audiodatasets
     # this will download 100+GB and then unpack it on disk, it will take a while...
     $ audiodatasets-download 
 
 Creating MFCC data-files::
 
     # this will generate Multi-frequency Cepestral Coefficient (MFCC) summaries for the 
-    # audio datasets (and download them if that hasn't been done)
+    # audio datasets (and download them if that hasn't been done). This isn't necessary
+    # if you are doing only raw-audio processing
     $ audiodatasets-preprocess 
 
 Playing some audio::
@@ -93,7 +95,10 @@ separate out test/train/validate data. To iterate over the raw audio:
     import random
 
     def train_valid_test():
-        """Create training, validation and tests datasets"""
+        """Create training, validation and tests datasets
+        
+        returns three iterators yielding (array[10:512],transcript) batches
+        """
         utterances = []
         for corpus in build_corpora():
             utterances.extend( corpus.iter_utterances())
@@ -103,6 +108,37 @@ separate out test/train/validate data. To iterate over the raw audio:
             while True:
                 offset = random.randint(0,511)
                 for name,transcript,audio_file in utterances:
-                    for batch in t.iter_batches( audio_file, batch_size=10, input=input_width, offset=offset ):
+                    for batch in t.iter_batches( audio_file, batch_size=10, input=512, offset=offset ):
+                        yield batch,transcript
+        return generation(train),generation(test),generation(valid)
+
+To iterate over the 10ms MFCC preprocessed data, which yields 20 frequency batches per 
+processing window (10ms):
+
+.. code:: python
+
+    from audiodatasets.corpora import build_corpora, partition
+    import random
+
+    def train_valid_test():
+        """Create training, validation and tests datasets
+
+        Note: the batches vary in *time* at highest frequency, while
+        the frequency bins are the second-highest frequency.
+
+        See: `LibRosa MFCC <https://librosa.github.io/librosa/generated/librosa.feature.mfcc.html>`_
+        
+        returns three iterators yielding (array[10:20:63],transcript) batches
+        """
+        utterances = []
+        for corpus in build_corpora():
+            utterances.extend( corpus.mfcc_utterances())
+        random.shuffle(utterances)
+        train, test,valid = partition( utterances, (3,1,1) )
+        def generation( utterances ):
+            while True:
+                offset = random.randint(0,62)
+                for name,transcript,audio_file in utterances:
+                    for batch in t.iter_batches( audio_file, batch_size=10, input=63, offset=offset ):
                         yield batch,transcript
         return generation(train),generation(test),generation(valid)
