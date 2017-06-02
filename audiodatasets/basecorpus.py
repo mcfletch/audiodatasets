@@ -115,13 +115,14 @@ class AudioCorpus(object):
             )
         return audio
 
-    def iter_batches(self, audio_filename, batch_size=10, input=64, offset=0):
+    @classmethod
+    def iter_batches(cls, audio_filename, batch_size=10, input=64, offset=0):
         """Iterate set of batches from audio_filename
 
         returns iterator of array[batch_size:1:input] of
         16KHz raw audio samples
         """
-        matrix = self.load_audio_file(audio_filename)
+        matrix = cls.load_audio_file(audio_filename)
         slice_size = batch_size * input
         blocks = (len(matrix) - offset) // slice_size
         for i in range(blocks):
