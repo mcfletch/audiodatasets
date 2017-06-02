@@ -20,15 +20,28 @@ DEFAULT_DATASET_DIR = '/var/datasets'
 class AudioCorpus(object):
     """Pulls, unpacks and pre-processes large spoken-word datasets"""
     STORE_IN_SUBDIR = False
+    LOCAL_DIR = 'UNSPECIFIED'
+    DOWNLOAD_SIZES = {
+        #'filename':int,
+    }
+    DOWNLOAD_URL = 'https://example.com/'
+    DOWNLOAD_FILES = [
+        #'basefilename.tar.gz'
+    ]
+    UNPACKED_FLAGS = [
+        #'path/to/file/that/indicates/unpacked/state.wav'
+    ]
 
     def __init__(self, dataset_dir=DEFAULT_DATASET_DIR):
         self.dataset_dir = dataset_dir
 
     @property
     def local_dir(self):
+        """Property providing our local data/storage directory"""
         return os.path.join(self.dataset_dir, self.LOCAL_DIR)
 
     def download_filename(self, filename):
+        """Combine filename with our directory to determine final download location"""
         if self.STORE_IN_SUBDIR:
             expected_filename = os.path.join(self.local_dir, filename)
         else:
@@ -103,21 +116,29 @@ class AudioCorpus(object):
         return audio
 
     def iter_batches(self, audio_filename, batch_size=10, input=64, offset=0):
-        """Iterate set of batches from audio_filename of (batch,input) samples from audio_filename"""
+        """Iterate set of batches from audio_filename
+
+        returns iterator of array[batch_size:1:input] of
+        16KHz raw audio samples
+        """
         matrix = self.load_audio_file(audio_filename)
         slice_size = batch_size * input
         blocks = (len(matrix) - offset) // slice_size
         for i in range(blocks):
-            slice = matrix[offset + i *
-                           slice_size:offset + (i + 1) * slice_size]
-            array = slice.reshape((batch_size, 1, input))
-            yield array
+            batch = matrix[
+                offset + i *slice_size:offset + (i + 1) * slice_size
+            ]
+            yield batch.reshape((batch_size, 1, input))
 
     @classmethod
     def play_audio_file(cls, audio_filename):
         """Play an audio file from disk for quality checks"""
         content = cls.load_audio_file(audio_filename)
         sounddevice.play(content, 16000, blocking=True)
+
+    def iter_utterances(self):
+        """Produce iterator yielding (speakerid,transcript,audio_filename)"""
+        raise NotImplementedError
 
     def mfcc_utterances(self):
         """Iterate speaker, content, audio_filename, mfcc_filename for this dataset"""
