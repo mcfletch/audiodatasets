@@ -11,7 +11,9 @@ import time
 import subprocess
 import logging
 import tempfile
-from .corpora import build_corpora, GLOBAL_DATSET_DIR, PERSONAL_DATASET_DIR
+import contextlib
+from .corpora import build_corpora
+from .baseoptions import get_options
 log = logging.getLogger(__name__)
 
 def _run_pipes_to_finish(pipes):
@@ -22,6 +24,12 @@ def _run_pipes_to_finish(pipes):
         ]
         log.info("%s downloads running", len(pipes))
         time.sleep(5)
+@contextlib.contextmanager
+def chdir(directory):
+    cwd = os.getcwd()
+    os.chdir(directory)
+    yield directory
+    os.chdir(cwd)
 
 
 def download_files(to_download):
@@ -43,51 +51,14 @@ def download_files(to_download):
         pipes.append(subprocess.Popen(command))
     _run_pipes_to_finish(pipes)
 
-
 def unpack_downloads(to_unpack, target):
-    with os.chdir(target):
+    with chdir(target):
         pipes = []
         for unpack in to_unpack:
             pipes.append(subprocess.Popen([
-                'tar', '-xf', target,
+                'tar', '-xf', unpack['filename'],
             ]))
         _run_pipes_to_finish(pipes)
-
-
-def get_options(description):
-    import argparse
-    DEFAULT_DATASET_DIR = os.path.expanduser(PERSONAL_DATASET_DIR)
-    if os.path.exists(GLOBAL_DATSET_DIR):
-        try:
-            _t = tempfile.TemporaryFile(
-                prefix='.test-write', dir=GLOBAL_DATSET_DIR
-            )
-        except (IOError, OSError):
-            log.error('Unable to write to %s', GLOBAL_DATSET_DIR)
-        else:
-            _t.close()
-            DEFAULT_DATASET_DIR = GLOBAL_DATSET_DIR
-    parser = argparse.ArgumentParser(
-        description=description
-    )
-    parser.add_argument(
-        '-d', '--directory',
-        default=DEFAULT_DATASET_DIR,
-        help="""Directory for storing datasets, default: %s""" % (
-            DEFAULT_DATASET_DIR,)
-    )
-    parser.add_argument(
-        '-c', '--corpus',
-        choices=[
-            'tedlium',
-            'vctk',
-            'librespeech',
-        ],
-        action='append',
-        default=[],
-        help="Specify particular corpora (repeat option to specify multiple), default: all"
-    )
-    return parser
 
 
 def download(dry_run=False):
@@ -127,12 +98,11 @@ def _download(target, corpora, dry_run=False):
         return
     if to_download:
         download_files(to_download)
-    utterances = []
     for corpus in corpora:
         to_unpack = list(corpus.to_unpack())
         if to_unpack:
-            unpack_downloads(to_unpack, target)
-
+            import ipdb;ipdb.set_trace()
+            unpack_downloads(to_unpack, corpus.local_dir)
 
 def preprocess():
     """Main-function for the preprocessing operation"""

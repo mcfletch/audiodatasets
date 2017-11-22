@@ -14,7 +14,7 @@ import librosa.feature
 import soundfile
 import sounddevice
 log = logging.getLogger(__name__)
-DEFAULT_DATASET_DIR = '/var/datasets'
+from .settings import PERSONAL_DATASET_DIR
 
 
 class AudioCorpus(object):
@@ -31,8 +31,7 @@ class AudioCorpus(object):
     UNPACKED_FLAGS = [
         #'path/to/file/that/indicates/unpacked/state.wav'
     ]
-
-    def __init__(self, dataset_dir=DEFAULT_DATASET_DIR):
+    def __init__(self, dataset_dir=PERSONAL_DATASET_DIR):
         self.dataset_dir = dataset_dir
 
     @property
@@ -140,6 +139,11 @@ class AudioCorpus(object):
     def iter_utterances(self):
         """Produce iterator yielding (speakerid,transcript,audio_filename)"""
         raise NotImplementedError
+    
+    @classmethod
+    def load_mfcc_file(cls,filename):
+        """Load MFC preprocessed numpy data-file"""
+        return numpy.load(filename,allow_pickle=False)
 
     def mfcc_utterances(self):
         """Iterate speaker, content, audio_filename, mfcc_filename for this dataset"""

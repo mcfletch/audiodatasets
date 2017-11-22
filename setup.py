@@ -56,6 +56,7 @@ setup(
             'audiodatasets-download=audiodatasets.preprocess:download',
             'audiodatasets-preprocess=audiodatasets.preprocess:preprocess',
             'audiodatasets-search=audiodatasets.searchwords:main',
+            'audiodatasets-stats=audiodatasets.stats:main',
         ],
     },
 )

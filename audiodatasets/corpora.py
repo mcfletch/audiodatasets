@@ -1,7 +1,6 @@
 """Get a set of corpora for a given directory"""
 import os
-GLOBAL_DATSET_DIR = '/var/datsets'
-PERSONAL_DATASET_DIR = '~/.config/datasets'
+from .settings import PERSONAL_DATASET_DIR
 
 def build_corpora(target=PERSONAL_DATASET_DIR, corpora=None):
     """Build corpora for given target
@@ -14,11 +13,14 @@ def build_corpora(target=PERSONAL_DATASET_DIR, corpora=None):
     from . import tedlium
     from . import vctk
     from . import librispeech
+    from . import speechcommands
     target = os.path.expanduser(target)
     all_corpora = {
         'tedlium': tedlium.CORPUS,
         'vctk': vctk.CORPUS,
         'librispeech': librispeech.CORPUS,
+        'librespeech': librispeech.CORPUS,
+        'speechcommands': speechcommands.CORPUS,
     }
     if not corpora:
         corpora = all_corpora.values()
