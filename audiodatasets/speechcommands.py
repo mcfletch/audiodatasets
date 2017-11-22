@@ -26,9 +26,10 @@ class SpeechCommands(basecorpus.AudioCorpus):
         so they need to be down-sampled to match the rest of the datasets
         """
         filenames = sorted(glob.glob(
-            os.path.join(self.local_dir,'*','*')
+            os.path.join(self.local_dir,'*','*.wav')
         ))
-        
-
+        for filename in filenames:
+            utterance,base = filename.split(os.sep)[-2:]
+            yield 'sc-%s-%s'%(utterance,base), utterance, filename
 
 CORPUS = SpeechCommands
